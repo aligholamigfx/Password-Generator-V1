@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تولیدکننده رمز عبور | Dev Limo</title>
+
+    <!-- New favicon based on your SVG -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23f59e0b'><path d='M20 12c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5S7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8zM9 7c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7z'/></svg>">
+
+    <link href="https://lib.arvancloud.ir/vazir-font/33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://lib.arvancloud.ir/font-awesome/6.3.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #fef9e7;
+            --header-bg: rgba(255, 255, 255, 0.7);
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(255, 255, 255, 0.5);
+            --input-bg: rgba(254, 243, 199, 0.7);
+            --input-border: rgba(234, 179, 8, 0.3);
+            --text: #1e1e2e;
+            --text-secondary: #5a5a6a;
+            --text-muted: #8a8a90;
+            --accent: #eab308;
+            --accent-light: #facc15;
+            --accent-soft: rgba(234, 179, 8, 0.15);
+            --weak: #ef4444;
+            --medium: #f59e0b;
+            --strong: #22c55e;
+            --very-strong: #10b981;
+            --radius: 20px;
+            --radius-sm: 12px;
+            --btn-glass: rgba(255,255,255,0.8);
+            --btn-glass-border: rgba(0,0,0,0.06);
+            --toast-bg: rgba(255,255,255,0.9);
+            --slider-track: rgba(0,0,0,0.06);
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1a24;
+            --header-bg: rgba(30, 30, 40, 0.7);
+            --card-bg: rgba(30, 30, 40, 0.75);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --input-bg: rgba(20, 20, 30, 0.8);
+            --input-border: rgba(234, 179, 8, 0.3);
+            --text: #f0f0f5;
+            --text-secondary: #b0b0c0;
+            --text-muted: #7a7a8a;
+            --accent: #eab308;
+            --accent-light: #fbbf24;
+            --accent-soft: rgba(234, 179, 8, 0.2);
+            --btn-glass: rgba(40,40,50,0.7);
+            --btn-glass-border: rgba(255,255,255,0.08);
+            --toast-bg: rgba(30,30,40,0.9);
+            --slider-track: rgba(255,255,255,0.1);
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text);
+            position: relative;
+            overflow-x: hidden;
+            transition: background 0.3s ease;
+        }
+
+        .bg-animation {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: floatBlob 25s infinite ease-in-out;
+            will-change: transform;
+        }
+
+        .blob1 { width: 400px; height: 400px; background: linear-gradient(135deg, #fbbf24, #f59e0b); top: -150px; left: -100px; }
+        .blob2 { width: 350px; height: 350px; background: linear-gradient(135deg, #f472b6, #ec4899); bottom: -120px; right: -80px; animation-delay: -7s; }
+        .blob3 { width: 300px; height: 300px; background: linear-gradient(135deg, #818cf8, #6366f1); top: 60%; left: 20%; animation-delay: -14s; }
+        .blob4 { width: 250px; height: 250px; background: linear-gradient(135deg, #34d399, #10b981); bottom: 10%; right: 25%; animation-delay: -20s; }
+
+        @keyframes floatBlob {
+            0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            25% { transform: translate(40px, -30px) scale(1.1) rotate(5deg); }
+            50% { transform: translate(-20px, 25px) scale(0.9) rotate(-3deg); }
+            75% { transform: translate(30px, 15px) scale(1.05) rotate(2deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header-box {
+            background: var(--header-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            transition: background 0.3s ease, border 0.3s ease;
+        }
+
+        .header-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-text h1 i { color: var(--accent); font-size: 1.7rem; }
+        .header-text p { font-size: 0.85rem; color: var(--text-secondary); margin-top: 2px; }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 50%;
+            width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            transition: background 0.3s ease, border 0.3s ease;
+        }
+
+        .password-field {
+            background: var(--input-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        .password-field i.fa-key { color: var(--accent); font-size: 18px; flex-shrink: 0; }
+        .password-field input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.95rem;
+            letter-spacing: 1.2px;
+            direction: ltr;
+            text-align: left;
+            outline: none;
+        }
+
+        .password-field input::placeholder {
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: normal;
+            color: var(--text-muted);
+            direction: rtl;
+            text-align: right;
+        }
+
+        .icon-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 6px; border-radius: 6px; transition: all 0.2s; font-size: 16px; flex-shrink: 0; }
+        .icon-btn:hover { color: var(--accent); background: var(--accent-soft); }
+
+        .strength-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .strength-label { font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; }
+
+        .strength-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--slider-track);
+            border-radius: 6px;
+            overflow: hidden;
+            direction: ltr;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--weak), var(--medium), var(--strong), var(--very-strong));
+            border-radius: 6px;
+            transition: width 0.4s ease;
+        }
+
+        .strength-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-width: 75px;
+            text-align: right;
+            direction: ltr;
+            unicode-bidi: plaintext;
+            color: var(--text);
+        }
+
+        .slider-block { display: flex; flex-direction: column; gap: 10px; }
+        .slider-header { display: flex; justify-content: space-between; align-items: center; }
+        .slider-header span:first-child { font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+        .slider-header span:first-child i { color: var(--accent); font-size: 15px; }
+        .length-badge {
+            background: var(--accent);
+            color: white;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-width: 44px;
+            text-align: center;
+            direction: ltr;
+            unicode-bidi: plaintext;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: var(--slider-track);
+            border-radius: 6px;
+            outline: none;
+            direction: ltr;
+            margin: 2px 0;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px; height: 22px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--accent);
+            box-shadow: 0 2px 10px rgba(234, 179, 8, 0.3);
+            transition: transform 0.15s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+        .slider-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); padding: 0 2px; direction: ltr; }
+
+        .options-title { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .option-item {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: var(--input-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--input-border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option-item:hover { background: var(--card-bg); border-color: var(--accent); }
+        .option-item input { display: none; }
+
+        .fake-checkbox {
+            width: 20px; height: 20px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+            flex-shrink: 0;
+            color: white;
+        }
+        .fake-checkbox i { font-size: 11px; opacity: 0; transition: 0.2s; }
+        .option-item input:checked + .fake-checkbox { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+        .option-item input:checked + .fake-checkbox i { opacity: 1; }
+
+        .option-label { display: flex; flex-direction: column; align-items: center; text-align: center; line-height: 1.3; }
+        .option-chars { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.85rem; font-weight: 600; color: var(--accent); direction: ltr; unicode-bidi: plaintext; text-align: left; }
+        .option-desc { font-size: 0.75rem; color: var(--text-muted); }
+
+        .actions { display: flex; gap: 10px; margin-top: 4px; }
+        .btn {
+            border: none; border-radius: var(--radius-sm); font-family: 'Vazirmatn', sans-serif; font-weight: 500;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+            transition: all 0.25s; font-size: 0.9rem; color: white;
+        }
+
+        .btn-icon {
+            width: 44px; height: 44px; background: var(--btn-glass); backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); border: 1px solid var(--btn-glass-border);
+            color: var(--text-secondary); font-size: 17px; border-radius: var(--radius-sm);
+        }
+        .btn-icon:hover { background: var(--accent); color: white; transform: rotate(90deg); }
+
+        .btn-copy {
+            flex: 1; background: var(--btn-glass); backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); border: 1px solid var(--btn-glass-border); color: var(--text-secondary);
+        }
+        .btn-copy:hover { background: var(--accent-soft); color: var(--text); border-color: var(--accent); }
+
+        .btn-generate {
+            flex: 1.3; background: var(--accent); font-weight: 600; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);
+        }
+        .btn-generate:hover { background: var(--accent-light); box-shadow: 0 8px 18px rgba(234, 179, 8, 0.4); }
+
+        .btn-copy.copied { background: #10b981; border-color: #10b981; color: white; }
+
+        .footer {
+            text-align: center; font-size: 0.8rem; color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .footer i { color: #f472b6; font-size: 11px; }
+        .footer a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+        .toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: var(--toast-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--card-border); padding: 12px 24px; border-radius: 30px;
+            display: flex; align-items: center; gap: 8px; font-size: 0.85rem;
+            opacity: 0; visibility: hidden; transition: all 0.35s ease; z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); direction: rtl; color: var(--text);
+        }
+        .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        .toast i { color: #10b981; }
+
+        @media (max-width: 420px) {
+            body { padding: 14px; }
+            .header-box { padding: 16px; }
+            .card { padding: 18px; gap: 14px; }
+            .header-text h1 { font-size: 1.3rem; }
+            .btn-copy span, .btn-generate span { display: none; }
+            .btn-copy, .btn-generate { flex: 1; }
+            .theme-toggle { width: 40px; height: 40px; font-size: 18px; }
+        }
+
+        @media (max-width: 360px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="bg-animation">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+        <div class="blob blob3"></div>
+        <div class="blob blob4"></div>
+    </div>
+
+    <main class="container">
+        <div class="header-box">
+            <div class="header-text">
+                <h1><i class="fas fa-shield-halved"></i> تولید رمز عبور</h1>
+                <p>رمزهای امن و قدرتمند بسازید</p>
+            </div>
+            <div class="theme-toggle" id="themeToggle" title="تغییر تم">
+                <i class="fas fa-moon"></i>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="password-field">
+                <i class="fas fa-key"></i>
+                <input type="text" id="password" readonly placeholder="رمز عبور شما">
+                <button class="icon-btn" id="toggleVisibility" title="نمایش">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+
+            <div class="strength-row">
+                <span class="strength-value" id="strengthText">-</span>
+                <div class="strength-bar">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                <span class="strength-label">قدرت</span>
+            </div>
+
+            <div class="slider-block">
+                <div class="slider-header">
+                    <span><i class="fas fa-ruler-horizontal"></i> طول رمز</span>
+                    <span class="length-badge" id="lengthValue">12</span>
+                </div>
+                <input type="range" id="lengthSlider" min="8" max="25" value="12">
+                <div class="slider-labels">
+                    <span>8</span><span>16</span><span>25</span>
+                </div>
+            </div>
+
+            <div>
+                <div class="options-title"><i class="fas fa-sliders"></i> کاراکترها</div>
+                <div class="options-grid">
+                    <label class="option-item">
+                        <input type="checkbox" id="upperCheck" checked>
+                        <span class="fake-checkbox"><i class="fas fa-check"></i></span>
+                        <span class="option-label">
+                            <span class="option-chars">ABC</span>
+                            <span class="option-desc">حروف بزرگ</span>
+                        </span>
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="lowerCheck" checked>
+                        <span class="fake-checkbox"><i class="fas fa-check"></i></span>
+                        <span class="option-label">
+                            <span class="option-chars">abc</span>
+                            <span class="option-desc">حروف کوچک</span>
+                        </span>
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="numbersCheck" checked>
+                        <span class="fake-checkbox"><i class="fas fa-check"></i></span>
+                        <span class="option-label">
+                            <span class="option-chars">123</span>
+                            <span class="option-desc">اعداد</span>
+                        </span>
+                    </label>
+                    <label class="option-item">
+                        <input type="checkbox" id="symbolsCheck" checked>
+                        <span class="fake-checkbox"><i class="fas fa-check"></i></span>
+                        <span class="option-label">
+                            <span class="option-chars">!@#</span>
+                            <span class="option-desc">نمادها</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-icon" id="refreshBtn" title="تولید مجدد">
+                    <i class="fas fa-rotate-right"></i>
+                </button>
+                <button class="btn btn-copy" id="copyBtn">
+                    <i class="fas fa-copy"></i> <span>کپی</span>
+                </button>
+                <button class="btn btn-generate" id="generateBtn">
+                    <i class="fas fa-wand-magic-sparkles"></i> <span>تولید</span>
+                </button>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <span>ساخته شده با</span>
+            <i class="fas fa-heart"></i>
+            <span>توسط</span>
+            <a href="#">Dev Limo</a>
+        </footer>
+    </main>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMsg">کپی شد</span>
+    </div>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const lengthSlider = document.getElementById('lengthSlider');
+        const lengthValue = document.getElementById('lengthValue');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+        const upperCheck = document.getElementById('upperCheck');
+        const lowerCheck = document.getElementById('lowerCheck');
+        const numbersCheck = document.getElementById('numbersCheck');
+        const symbolsCheck = document.getElementById('symbolsCheck');
+        const generateBtn = document.getElementById('generateBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const toggleVisibility = document.getElementById('toggleVisibility');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        const CHARS = {
+            upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            lower: 'abcdefghijklmnopqrstuvwxyz',
+            numbers: '0123456789',
+            symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+        };
+
+        let visible = false;
+
+        function generate() {
+            let charset = '';
+            if (upperCheck.checked) charset += CHARS.upper;
+            if (lowerCheck.checked) charset += CHARS.lower;
+            if (numbersCheck.checked) charset += CHARS.numbers;
+            if (symbolsCheck.checked) charset += CHARS.symbols;
+
+            if (!charset) {
+                lowerCheck.checked = true;
+                charset = CHARS.lower;
+                showToast('حداقل یک گزینه انتخاب شود');
+            }
+
+            const len = parseInt(lengthSlider.value);
+            const arr = new Uint32Array(len);
+            crypto.getRandomValues(arr);
+            let pwd = '';
+            for (let i = 0; i < len; i++) pwd += charset[arr[i] % charset.length];
+            passwordInput.value = pwd;
+            updateStrength(pwd, charset);
+        }
+
+        function updateStrength(pwd, charset) {
+            const len = pwd.length;
+            const entropy = Math.floor(len * Math.log2(charset.length || 1));
+            let percent, text;
+            if (len < 10) { percent = 20; text = 'ضعیف'; }
+            else if (len < 14 || entropy < 40) { percent = 45; text = 'متوسط'; }
+            else if (len < 18 || entropy < 60) { percent = 75; text = 'قوی'; }
+            else { percent = 100; text = 'خیلی قوی'; }
+            strengthFill.style.width = percent + '%';
+            strengthText.textContent = text;
+        }
+
+        function togglePassVisibility() {
+            visible = !visible;
+            passwordInput.type = visible ? 'text' : 'password';
+            toggleVisibility.innerHTML = visible ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+        }
+
+        async function copy() {
+            if (!passwordInput.value) return;
+            try {
+                await navigator.clipboard.writeText(passwordInput.value);
+                copyBtn.classList.add('copied');
+                copyBtn.innerHTML = '<i class="fas fa-check"></i> <span>کپی شد</span>';
+                showToast('رمز کپی شد');
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i> <span>کپی</span>';
+                }, 1500);
+            } catch {
+                showToast('خطا در کپی');
+            }
+        }
+
+        function showToast(msg) {
+            toastMsg.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function setTheme(theme) {
+            body.setAttribute('data-theme', theme);
+            const icon = theme === 'dark' ? 'fa-sun' : 'fa-moon';
+            themeToggle.innerHTML = `<i class="fas ${icon}"></i>`;
+            localStorage.setItem('pw-theme', theme);
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const current = body.getAttribute('data-theme');
+            setTheme(current === 'dark' ? 'light' : 'dark');
+        });
+
+        const savedTheme = localStorage.getItem('pw-theme') || 'light';
+        setTheme(savedTheme);
+
+        lengthSlider.addEventListener('input', (e) => {
+            lengthValue.textContent = e.target.value;
+            generate();
+        });
+        [upperCheck, lowerCheck, numbersCheck, symbolsCheck].forEach(cb => cb.addEventListener('change', generate));
+        generateBtn.addEventListener('click', generate);
+        refreshBtn.addEventListener('click', generate);
+        copyBtn.addEventListener('click', copy);
+        toggleVisibility.addEventListener('click', togglePassVisibility);
+        document.addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+
+        lengthValue.textContent = lengthSlider.value;
+        generate();
+    </script>
+</body>
+</html>
